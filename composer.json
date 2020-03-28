@@ -1,0 +1,29 @@
+{
+  "name": "furqansiddiqui/bitshares-php",
+  "description": "BitShares SDK PHP",
+  "type": "library",
+  "homepage": "https://github.com/furqansiddiqui/bitshares-php",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Furqan A. Siddiqui",
+      "email": "hello@furqansiddiqui.com",
+      "homepage": "https://www.furqansiddiqui.com",
+      "role": "Author"
+    }
+  ],
+  "require": {
+    "php-64bit": "^7.2",
+    "ext-openssl": "*",
+    "ext-bcmath": "*",
+    "textalk/websocket": "1.0.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "FurqanSiddiqui\\BitShares\\": [
+        "src"
+      ]
+    }
+  },
+  "minimum-stability": "dev"
+}
