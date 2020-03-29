@@ -7,6 +7,7 @@ use FurqanSiddiqui\BitShares\Exception\BadResponseException;
 use FurqanSiddiqui\BitShares\Exception\ConnectionException;
 use FurqanSiddiqui\BitShares\Exception\ErrorResponseException;
 use FurqanSiddiqui\BitShares\WalletAPI\Info;
+use FurqanSiddiqui\BitShares\WalletAPI\SuggestBrainKey;
 use WebSocket\Client;
 
 /**
@@ -68,6 +69,18 @@ class WalletAPI
     public function info(): Info
     {
         return new Info($this->call("info", null, $this->uniqueReqId()));
+    }
+
+    /**
+     * @return SuggestBrainKey
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     * @throws Exception\ResponseMapException
+     */
+    public function suggestBrainKey(): SuggestBrainKey
+    {
+        return new SuggestBrainKey($this->call("suggest_brain_key", null, $this->uniqueReqId()));
     }
 
     /**
