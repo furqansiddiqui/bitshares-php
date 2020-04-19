@@ -84,6 +84,17 @@ class WalletAPI
     }
 
     /**
+     * @return bool
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     */
+    public function isLocked(): bool
+    {
+        return $this->call("is_locked", [], $this->uniqueReqId());
+    }
+
+    /**
      * @param string $method
      * @param array|null $params
      * @param int $id
