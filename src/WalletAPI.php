@@ -6,6 +6,7 @@ namespace FurqanSiddiqui\BitShares;
 use FurqanSiddiqui\BitShares\Exception\BadResponseException;
 use FurqanSiddiqui\BitShares\Exception\ConnectionException;
 use FurqanSiddiqui\BitShares\Exception\ErrorResponseException;
+use FurqanSiddiqui\BitShares\WalletAPI\Account;
 use FurqanSiddiqui\BitShares\WalletAPI\Info;
 use FurqanSiddiqui\BitShares\WalletAPI\SuggestBrainKey;
 use WebSocket\Client;
@@ -92,6 +93,43 @@ class WalletAPI
     public function isLocked(): bool
     {
         return $this->call("is_locked", [], $this->uniqueReqId());
+    }
+
+    /**
+     * @return bool
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     */
+    public function isNew(): bool
+    {
+        return $this->call("is_new", [], $this->uniqueReqId());
+    }
+
+    /**
+     * @param string $accountId
+     * @return Account
+     */
+    public function account(string $accountId): Account
+    {
+        return new Account($this, $accountId);
+    }
+
+    /**
+     * @param Account $account
+     * @return bool
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     */
+    public function importAccount(Account $account): bool
+    {
+        $privateKey = $account->getPrivateKey();
+        if (!$privateKey) {
+            throw new \UnexpectedValueException('BTS account private key is not set');
+        }
+
+        return $this->call("import_key", [$account->accountId(), $privateKey->value()], $this->uniqueReqId());
     }
 
     /**
