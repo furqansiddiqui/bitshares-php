@@ -13,10 +13,10 @@ After compiling/install BitShares, for Wallet API, program `cli_wallet` has to b
 It is recommended to launch `cli_wallet` program in `tmux` session.  
 
 **Command:**  
-`./cli_wallet --chain-id= --server-rpc-endpoint=ws://localhost:8092 -r 0.0.0.0:8090`
+`./cli_wallet --server-rpc-endpoint=ws://localhost:8092 -r 0.0.0.0:8090`
 
-Parameter | Argument Type | Example Value
+Parameter | Example Value | Argument Type
 --- | --- | ---
---server-rpc-endpoint= | Hostname and port where to launch RPC server; Must also specify web-socket protocol either (`ws` or `wss`) | ws://localhost:8092
--r | IP and port where `witness_node` program is running | 0.0.0.0:8096
+--server-rpc-endpoint= | ws://localhost:8092 | Hostname and port where to launch RPC server; Must also specify web-socket protocol either (`ws` or `wss`)
+-r | 0.0.0.0:8090 | IP and port where `witness_node` program is running
 
