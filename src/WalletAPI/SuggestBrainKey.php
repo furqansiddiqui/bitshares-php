@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\BitShares\WalletAPI;
 
+use Comely\DataTypes\Buffer\Base64;
 use FurqanSiddiqui\BitShares\Exception\ResponseMapException;
 
 /**
@@ -30,7 +31,7 @@ class SuggestBrainKey
         }
 
         $this->brainPrivateKey = $res["brain_priv_key"];
-        $this->wifPrivateKey = $res["wif_priv_key"];
-        $this->publicKey = $res["pub_key"];
+        $this->wifPrivateKey = (new Base64($res["wif_priv_key"]))->readOnly(true);
+        $this->publicKey = (new Base64($res["pub_key"]))->readOnly(true);
     }
 }
