@@ -126,9 +126,46 @@ class WalletAPI
         return new Account($this, $accountId);
     }
 
+    /**
+     * @param Account $account
+     * @param Account $registrar
+     * @param Account|null $referrer
+     * @param int $referrerCommission
+     * @return SignedTransaction
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     */
     public function registerAccount(Account $account, Account $registrar, ?Account $referrer = null, int $referrerCommission = 0)
     {
+        if (!$account->getPublicKey()) {
+            throw new \UnexpectedValueException('Cannot register account; Public key is not set');
+        }
 
+        if ($referrerCommission < 0 || $referrerCommission > 100) {
+            throw new \OutOfRangeException('Out of range value for referrerCommission');
+        }
+
+        $signedTx = $this->call(
+            "register_account",
+            [
+                $account->accountId(),
+                $account->getPublicKey()->value(),
+                $account->getPublicKey()->value(),
+                $registrar->accountId(),
+                $referrer ? $referrer->accountId() : $registrar->accountId(),
+                $referrerCommission,
+                true
+            ],
+            $this->uniqueReqId()
+        );
+        if (!is_array($signedTx)) {
+            throw new \UnexpectedValueException(
+                sprintf('Expecting response of type Array from "upgrade_account" call, got "%s"', gettype($signedTx))
+            );
+        }
+
+        return new SignedTransaction($signedTx);
     }
 
     /**
