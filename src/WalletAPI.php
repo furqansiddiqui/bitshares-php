@@ -8,6 +8,7 @@ use FurqanSiddiqui\BitShares\Exception\ConnectionException;
 use FurqanSiddiqui\BitShares\Exception\ErrorResponseException;
 use FurqanSiddiqui\BitShares\WalletAPI\Account;
 use FurqanSiddiqui\BitShares\WalletAPI\Info;
+use FurqanSiddiqui\BitShares\WalletAPI\Objects\SignedTransaction;
 use FurqanSiddiqui\BitShares\WalletAPI\SuggestBrainKey;
 use WebSocket\Client;
 
@@ -25,6 +26,8 @@ class WalletAPI
     private $tls;
     /** @var Client */
     private $sock;
+    /** @var null|int */
+    private $uniqueReqIdSeed;
 
     /**
      * WalletAPI constructor.
@@ -53,11 +56,19 @@ class WalletAPI
     }
 
     /**
+     * @param int $id
+     */
+    public function setUniqueReqIdSeed(int $id): void
+    {
+        $this->uniqueReqIdSeed = $id;
+    }
+
+    /**
      * @return int
      */
     private function uniqueReqId(): int
     {
-        return time();
+        return intval(preg_replace("/[^0-9]/", "", strval(microtime(true) . $this->uniqueReqIdSeed)));
     }
 
     /**
@@ -113,6 +124,30 @@ class WalletAPI
     public function account(string $accountId): Account
     {
         return new Account($this, $accountId);
+    }
+
+    public function registerAccount(Account $account, Account $registrar, ?Account $referrer = null, int $referrerCommission = 0)
+    {
+
+    }
+
+    /**
+     * @param Account $account
+     * @return SignedTransaction
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     */
+    public function upgradeAccount(Account $account): SignedTransaction
+    {
+        $signedTx = $this->call("upgrade_account", [$account->accountId(), true], $this->uniqueReqId());
+        if (!is_array($signedTx)) {
+            throw new \UnexpectedValueException(
+                sprintf('Expecting response of type Array from "upgrade_account" call, got "%s"', gettype($signedTx))
+            );
+        }
+
+        return new SignedTransaction($signedTx);
     }
 
     /**
