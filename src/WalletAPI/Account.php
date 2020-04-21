@@ -18,6 +18,8 @@ class Account
     /** @var string */
     private $accountId;
     /** @var null|Base64 */
+    private $publicKey;
+    /** @var null|Base64 */
     private $privateKey;
 
     /**
@@ -66,6 +68,31 @@ class Account
     public function getPrivateKey(): ?Base64
     {
         return $this->privateKey;
+    }
+
+    /**
+     * @param $publicKey
+     */
+    public function setPublicKey($publicKey): void
+    {
+        if (is_string($publicKey)) {
+            $publicKey = new Base64($publicKey);
+        }
+
+        if (!$publicKey instanceof Base64) {
+            throw new \InvalidArgumentException('Private key must be a String or Base64');
+        }
+
+        $this->publicKey = $publicKey->copy();
+        $this->publicKey->readOnly(true);
+    }
+
+    /**
+     * @return Base64|null
+     */
+    public function getPublicKey(): ?Base64
+    {
+        return $this->publicKey;
     }
 
     /**
