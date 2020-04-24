@@ -80,7 +80,7 @@ class WalletAPI
      */
     public function info(): Info
     {
-        return new Info($this->call("info", null, $this->uniqueReqId()));
+        return new Info($this->call("info", null));
     }
 
     /**
@@ -92,7 +92,7 @@ class WalletAPI
      */
     public function suggestBrainKey(): SuggestBrainKey
     {
-        return new SuggestBrainKey($this->call("suggest_brain_key", null, $this->uniqueReqId()));
+        return new SuggestBrainKey($this->call("suggest_brain_key", null));
     }
 
     /**
@@ -103,7 +103,7 @@ class WalletAPI
      */
     public function isLocked(): bool
     {
-        return $this->call("is_locked", [], $this->uniqueReqId());
+        return $this->call("is_locked", []);
     }
 
     /**
@@ -114,7 +114,7 @@ class WalletAPI
      */
     public function isNew(): bool
     {
-        return $this->call("is_new", [], $this->uniqueReqId());
+        return $this->call("is_new", []);
     }
 
     /**
@@ -156,8 +156,7 @@ class WalletAPI
                 $referrer ? $referrer->accountId() : $registrar->accountId(),
                 $referrerCommission,
                 true
-            ],
-            $this->uniqueReqId()
+            ]
         );
         if (!is_array($signedTx)) {
             throw new \UnexpectedValueException(
@@ -177,7 +176,7 @@ class WalletAPI
      */
     public function upgradeAccount(Account $account): SignedTransaction
     {
-        $signedTx = $this->call("upgrade_account", [$account->accountId(), true], $this->uniqueReqId());
+        $signedTx = $this->call("upgrade_account", [$account->accountId(), true]);
         if (!is_array($signedTx)) {
             throw new \UnexpectedValueException(
                 sprintf('Expecting response of type Array from "upgrade_account" call, got "%s"', gettype($signedTx))
@@ -201,7 +200,7 @@ class WalletAPI
             throw new \UnexpectedValueException('BTS account private key is not set');
         }
 
-        return $this->call("import_key", [$account->accountId(), $privateKey->value()], $this->uniqueReqId());
+        return $this->call("import_key", [$account->accountId(), $privateKey->value()]);
     }
 
     /**
@@ -213,8 +212,12 @@ class WalletAPI
      * @throws ConnectionException
      * @throws ErrorResponseException
      */
-    public function call(string $method, ?array $params, string $id)
+    public function call(string $method, ?array $params, ?string $id = null)
     {
+        if (!$id) {
+            $id = $this->uniqueReqId();
+        }
+
         try {
             $this->sock->send(JSON_RPC20::Payload($method, $params, $id));
             return JSON_RPC20::Response($this->sock->receive(), $id);
