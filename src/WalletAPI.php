@@ -64,11 +64,11 @@ class WalletAPI
     }
 
     /**
-     * @return int
+     * @return string
      */
-    private function uniqueReqId(): int
+    private function uniqueReqId(): string
     {
-        return intval(preg_replace("/[^0-9]/", "", strval(microtime(true) . $this->uniqueReqIdSeed)));
+        return preg_replace("/[^0-9]/", "", strval(microtime(true) . $this->uniqueReqIdSeed));
     }
 
     /**
@@ -207,13 +207,13 @@ class WalletAPI
     /**
      * @param string $method
      * @param array|null $params
-     * @param int $id
-     * @return mixed
-     * @throws ConnectionException
+     * @param string $id
+     * @return mixed|null
      * @throws BadResponseException
+     * @throws ConnectionException
      * @throws ErrorResponseException
      */
-    public function call(string $method, ?array $params, int $id)
+    public function call(string $method, ?array $params, string $id)
     {
         try {
             $this->sock->send(JSON_RPC20::Payload($method, $params, $id));
