@@ -129,4 +129,59 @@ class Account
 
         return $accountAssetBalances;
     }
+
+    /**
+     * @param Account $to
+     * @param string $amount
+     * @param Objects\Asset $asset
+     * @param string $memo
+     * @return Objects\SignedTransaction
+     * @throws \FurqanSiddiqui\BitShares\Exception\BadResponseException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ConnectionException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ErrorResponseException
+     */
+    public function transfer(Account $to, string $amount, WalletAPI\Objects\Asset $asset, string $memo): WalletAPI\Objects\SignedTransaction
+    {
+        $scale = $asset->precision();
+        if (bccomp($amount, "0", $scale) !== 1) {
+            throw new \UnexpectedValueException('Amount must be a positive numeric value');
+        }
+
+        $amount = bcmul($amount, "1", $scale);
+        $memoLen = strlen($memo);
+        if ($memoLen > 32) {
+            throw new \UnexpectedValueException('Memo exceeds limit of 32 bytes');
+        }
+
+        $transfer = $this->walletAPI->call(
+            "transfer2",
+            [
+                $this->accountId(),
+                $to->accountId(),
+                $amount,
+                $asset->id(),
+                $memo,
+                true,
+            ]
+        );
+        if (!is_array($transfer)) {
+            throw new \UnexpectedValueException(
+                sprintf('Transfer method expected response of type Array; got "%s"', gettype($transfer))
+            );
+        }
+
+        $txId = $transfer[0];
+        if (!is_string($txId) || !preg_match('/^[a-f0-9]{40}$/i', $txId)) {
+            throw new \UnexpectedValueException('Invalid transaction ID from transfer2');
+        }
+
+        $txRaw = $transfer[1];
+        if (!is_array($txRaw)) {
+            throw new \UnexpectedValueException('Invalid signed transaction obj from transfer2');
+        }
+
+        $signedTx = new WalletAPI\Objects\SignedTransaction($txRaw);
+        $signedTx->txId = $txId;
+        return $signedTx;
+    }
 }
