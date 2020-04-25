@@ -131,6 +131,44 @@ class Account
     }
 
     /**
+     * @param int $limit
+     * @param bool $skipOnFail
+     * @return array
+     * @throws \FurqanSiddiqui\BitShares\Exception\BadResponseException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ConnectionException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ErrorResponseException
+     * @throws \Throwable
+     */
+    public function history(int $limit = 100, bool $skipOnFail = false): array
+    {
+        $accountTxs = $this->walletAPI->call("get_account_history", [$this->accountId(), $limit]);
+        if (!is_array($accountTxs)) {
+            throw new \UnexpectedValueException('getAccountHistory expected an Array result');
+        }
+
+        $history = [];
+        $index = -1;
+        foreach ($accountTxs as $accountTxRaw) {
+            $index++;
+            try {
+                $txEntry = new WalletAPI\Objects\AccountTx($accountTxRaw);
+            } catch (\Throwable $t) {
+                if (!$skipOnFail) {
+                    throw $t;
+                }
+
+                trigger_error(sprintf('[Tx-index:%d][%s][%s] %s', $index, get_class($t), $t->getCode(), $t->getMessage()), E_USER_WARNING);
+            }
+
+            if (isset($txEntry)) {
+                $history[] = $txEntry;
+            }
+        }
+
+        return $history;
+    }
+
+    /**
      * @param Account $to
      * @param string $amount
      * @param Objects\Asset $asset
