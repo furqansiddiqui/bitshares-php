@@ -7,6 +7,7 @@ use FurqanSiddiqui\BitShares\Exception\BadResponseException;
 use FurqanSiddiqui\BitShares\Exception\ConnectionException;
 use FurqanSiddiqui\BitShares\Exception\ErrorResponseException;
 use FurqanSiddiqui\BitShares\WalletAPI\Account;
+use FurqanSiddiqui\BitShares\WalletAPI\Assets;
 use FurqanSiddiqui\BitShares\WalletAPI\Info;
 use FurqanSiddiqui\BitShares\WalletAPI\Objects\SignedTransaction;
 use FurqanSiddiqui\BitShares\WalletAPI\SuggestBrainKey;
@@ -28,6 +29,8 @@ class WalletAPI
     private $sock;
     /** @var null|int */
     private $uniqueReqIdSeed;
+    /** @var Assets */
+    private $assets;
 
     /**
      * WalletAPI constructor.
@@ -45,6 +48,7 @@ class WalletAPI
         $this->port = $port;
         $this->tls = $tls;
         $this->sock = new Client($this->apiURL());
+        $this->assets = new Assets($this);
     }
 
     /**
@@ -115,6 +119,14 @@ class WalletAPI
     public function isNew(): bool
     {
         return $this->call("is_new", []);
+    }
+
+    /**
+     * @return Assets
+     */
+    public function assets(): Assets
+    {
+        return $this->assets;
     }
 
     /**
