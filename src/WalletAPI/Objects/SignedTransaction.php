@@ -9,6 +9,8 @@ namespace FurqanSiddiqui\BitShares\WalletAPI\Objects;
  */
 class SignedTransaction
 {
+    /** @var null|string */
+    public $txId;
     /** @var int|null */
     public $refBlockNum;
     /** @var int|null */
