@@ -103,5 +103,30 @@ class Account
         return $this->accountId;
     }
 
+    /**
+     * @return array
+     * @throws \FurqanSiddiqui\BitShares\Exception\BadResponseException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ConnectionException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ErrorResponseException
+     */
+    public function listBalances(): array
+    {
+        $balances = $this->walletAPI->call("list_account_balances", [$this->accountId]);
+        if (!is_array($balances)) {
+            throw new \UnexpectedValueException('listAccountBalances expected an Array');
+        }
 
+        $accountAssetBalances = [];
+        if ($balances) {
+            foreach ($balances as $balance) {
+                if (!is_array($balance)) {
+                    throw new \UnexpectedValueException('Each item in listAccountBalances array must be of type object');
+                }
+
+                $accountAssetBalances[] = new WalletAPI\Objects\AccountAssetBalance($this->walletAPI, $balance);
+            }
+        }
+
+        return $accountAssetBalances;
+    }
 }
