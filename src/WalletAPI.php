@@ -111,6 +111,17 @@ class WalletAPI
     }
 
     /**
+     * @param string $passphrase
+     * @throws BadResponseException
+     * @throws ConnectionException
+     * @throws ErrorResponseException
+     */
+    public function unlock(string $passphrase): void
+    {
+        $this->call("unlock", [$passphrase]);
+    }
+
+    /**
      * @return bool
      * @throws BadResponseException
      * @throws ConnectionException
