@@ -23,4 +23,19 @@ class Validator
 
         return false;
     }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public static function AccountOrAssetId($id): bool
+    {
+        if (is_string($id)) {
+            if (preg_match('/[0-9]+(\.[0-9]+)*/', $id)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
