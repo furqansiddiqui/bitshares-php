@@ -13,7 +13,7 @@ class Validator
      * @param $accountId
      * @return bool
      */
-    public static function AccountId($accountId): bool
+    public static function AccountName($accountId): bool
     {
         if (is_string($accountId)) {
             if (preg_match('/^[a-z0-9\-]{2,64}$/', $accountId)) {
