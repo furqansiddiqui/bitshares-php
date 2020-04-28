@@ -15,8 +15,6 @@ class AccountTx
     private $description;
     /** @var array */
     private $op;
-    /** @var null|array */
-    private $result;
     /** @var int */
     private $blockNum;
     /** @var array */
@@ -45,12 +43,7 @@ class AccountTx
 
         $this->op = new AccountTxOp($op);
 
-        $this->result = $tx["result"] ?? null;
-        if ($this->result && !is_array($this->result)) {
-            throw new \UnexpectedValueException('Prop "result" of type Array is required for AccountTx object');
-        }
-
-        $this->blockNum = $tx["block_num"];
+        $this->blockNum = $tx["op"]["block_num"];
         if (!is_int($this->blockNum)) {
             throw new \UnexpectedValueException('Prop "blockNum" of type Int is required for AccountTx object');
         }
@@ -80,14 +73,6 @@ class AccountTx
     public function op(): AccountTxOp
     {
         return $this->op;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function result(): ?array
-    {
-        return $this->result;
     }
 
     /**
