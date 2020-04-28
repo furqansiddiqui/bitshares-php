@@ -17,24 +17,31 @@ class Account
     private $walletAPI;
     /** @var string */
     private $accountId;
+    /** @var string */
+    private $accountName;
     /** @var null|Base64 */
     private $publicKey;
     /** @var null|Base64 */
     private $privateKey;
+    /** @var null|WalletAPI\Objects\AccountInfo */
+    private $accountInfoObj;
 
     /**
      * Account constructor.
      * @param WalletAPI $walletAPI
-     * @param string $accountId
+     * @param string $accountIdOrName
      */
-    public function __construct(WalletAPI $walletAPI, string $accountId)
+    public function __construct(WalletAPI $walletAPI, string $accountIdOrName)
     {
-        if (!Validator::AccountId($accountId)) {
-            throw new \InvalidArgumentException('Invalid account ID');
+        $isValidAccountName = Validator::AccountName($accountIdOrName);
+        $isValidAccountId = Validator::AccountOrAssetId($accountIdOrName);
+        if (!$isValidAccountName && !$isValidAccountId) {
+            throw new \InvalidArgumentException('Invalid account ID/name given to constructor');
         }
 
         $this->walletAPI = $walletAPI;
-        $this->accountId = $accountId;
+        $this->accountId = $isValidAccountId ? $accountIdOrName : null;
+        $this->accountName = $isValidAccountName ? $accountIdOrName : null;
     }
 
     /**
@@ -96,11 +103,47 @@ class Account
     }
 
     /**
+     * @param bool $cached
+     * @return Objects\AccountInfo
+     * @throws \FurqanSiddiqui\BitShares\Exception\BadResponseException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ConnectionException
+     * @throws \FurqanSiddiqui\BitShares\Exception\ErrorResponseException
+     */
+    public function info(bool $cached = true): WalletAPI\Objects\AccountInfo
+    {
+        if ($this->accountInfoObj && $cached) {
+            return $this->accountInfoObj;
+        }
+
+        $accountInfoRaw = $this->walletAPI->call("get_account", [$this->accountId ?? $this->accountName]);
+        if (!is_array($accountInfoRaw)) {
+            throw new \UnexpectedValueException(
+                sprintf('Expected getAccount call result type Array; got "%s"', gettype($accountInfoRaw))
+            );
+        }
+
+        $accountInfoObj = new WalletAPI\Objects\AccountInfo($accountInfoRaw);
+        $this->accountInfoObj = $accountInfoObj;
+        $this->accountName = $this->accountInfoObj->name();
+        $this->accountId = $this->accountInfoObj->id();
+
+        return $this->accountInfoObj;
+    }
+
+    /**
      * @return string
      */
     public function accountId(): string
     {
-        return $this->accountId;
+        return $this->accountId ?? $this->accountName;
+    }
+
+    /**
+     * @return string
+     */
+    public function accountName(): string
+    {
+        return $this->accountName ?? $this->accountId;
     }
 
     /**
