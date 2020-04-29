@@ -154,7 +154,7 @@ class Account
      */
     public function listBalances(): array
     {
-        $balances = $this->walletAPI->call("list_account_balances", [$this->accountName]);
+        $balances = $this->walletAPI->call("list_account_balances", [$this->accountName()]);
         if (!is_array($balances)) {
             throw new \UnexpectedValueException('listAccountBalances expected an Array');
         }
