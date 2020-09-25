@@ -17,7 +17,7 @@
     "ext-json": "*",
     "ext-openssl": "*",
     "ext-bcmath": "*",
-    "comely-io/data-types": "1.0.33",
+    "comely-io/data-types": "^1.0.33",
     "textalk/websocket": "1.0.*"
   },
   "autoload": {
