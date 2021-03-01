@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace FurqanSiddiqui\BitShares\WalletAPI\Objects;
 
+use Comely\DataTypes\BcMath\BcMath;
 use FurqanSiddiqui\BitShares\Validator;
 use FurqanSiddiqui\BitShares\WalletAPI;
 
@@ -14,7 +15,7 @@ class AccountAssetBalance
 {
     /** @var string */
     public $assetId;
-    /** @var int */
+    /** @var int|string */
     public $rawIntAmount;
     /** @var string */
     public $balance;
@@ -36,13 +37,14 @@ class AccountAssetBalance
             throw new \UnexpectedValueException('Invalid asset ID');
         }
 
-        $this->rawIntAmount = $assetBalance["amount"];
-        if (!is_int($this->rawIntAmount)) {
+        $rawIntAmount = BcMath::isNumeric($assetBalance["amount"]);
+        if (!is_int($rawIntAmount)) {
             throw new \UnexpectedValueException('Invalid asset balance amount');
         }
 
+        $this->rawIntAmount = $rawIntAmount;
         $this->asset = $walletAPI->assets()->get($this->assetId);
         $scale = $this->asset->precision();
-        $this->balance = bcdiv(strval($this->rawIntAmount), bcpow("10", strval($scale), 0), $scale);
+        $this->balance = bcdiv(strval($this->rawIntAmount), bcpow("10", strval($scale)), $scale);
     }
 }
