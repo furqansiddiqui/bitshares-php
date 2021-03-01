@@ -38,7 +38,7 @@ class AccountAssetBalance
         }
 
         $rawIntAmount = BcMath::isNumeric($assetBalance["amount"]);
-        if (!is_int($rawIntAmount)) {
+        if (!$rawIntAmount) {
             throw new \UnexpectedValueException('Invalid asset balance amount');
         }
 
